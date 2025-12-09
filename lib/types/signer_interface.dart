@@ -23,4 +23,8 @@ extension SignerX on Signer {
     final signature = ethPrivateKey.signToEcSignature(digest, isEIP1559: true);
     return EIP7702MsgSignature.forge(signature.r, signature.s, signature.v);
   }
+
+  Future<EIP7702MsgSignature> signAsync(Uint8List digest) {
+    return Future.value(sign(digest));
+  }
 }

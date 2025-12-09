@@ -2,12 +2,14 @@ library;
 
 import 'dart:typed_data';
 
+import 'package:eip7702/builder.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:wallet/wallet.dart';
 // ignore: implementation_imports
 import "package:web3dart/src/utils/rlp.dart" as rlp;
 import "package:web3dart/web3dart.dart";
 
+part 'package:eip7702/client/eip7702_client.dart';
 part 'package:eip7702/signing/auth_signer.dart';
 part 'package:eip7702/signing/tx_signer.dart';
 part 'package:eip7702/types/authorization_tuple.dart';

@@ -15,7 +15,7 @@ class SetCodeTxBuilder extends Eip7702Base with Eip7702Common {
     Uint8List? data,
     List<AuthorizationTuple> authorizationList = const [],
   }) async {
-    final unsignedTx = await buildUnsignedTx(
+    final unsignedTx = await buildUnsigned(
       sender: signer.ethPrivateKey.address,
       to: to,
       value: value,
@@ -23,16 +23,12 @@ class SetCodeTxBuilder extends Eip7702Base with Eip7702Common {
       authorizationList: authorizationList,
     );
 
-    final signedTx = await signUnsignedTx(
-      signer: signer,
-      unsignedTx: unsignedTx,
-    );
-
+    final signedTx = await signUnsigned(signer: signer, unsignedTx: unsignedTx);
     final rawTx = parseRawTransaction(signedTx, chainId: ctx.chainId?.toInt());
     return rawTx;
   }
 
-  Future<Unsigned7702Tx> buildUnsignedTx({
+  Future<Unsigned7702Tx> buildUnsigned({
     required EthereumAddress sender,
     required EthereumAddress to,
     EtherAmount? value,
@@ -82,20 +78,16 @@ class SetCodeTxBuilder extends Eip7702Base with Eip7702Common {
     };
   }
 
-  Future<Signed7702Tx> signUnsignedTx({
+  Future<Signed7702Tx> signUnsigned({
     required Signer signer,
     required Unsigned7702Tx unsignedTx,
   }) async {
     final resolvedChainId = await resolveChainId();
-    final signedTx = signTransaction(
+    final signedTx = await signTransaction(
       signer,
       unsignedTx,
       chainId: resolvedChainId.toInt(),
     );
     return signedTx;
-  }
-
-  Future<HexString> sendSignedTransactionRaw({required HexString signedTxRaw}) {
-    return ctx.web3Client.makeRPCCall('eth_sendRawTransaction', [signedTxRaw]);
   }
 }

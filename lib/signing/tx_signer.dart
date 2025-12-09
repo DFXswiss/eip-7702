@@ -13,9 +13,13 @@ Uint8List createTxPreImage(Unsigned7702Tx tx, {int? chainId}) {
 ///    Sign an Unsigned7702Tx with a Signer (raw or EthPrivateKey)
 ///    keccak256(preimage) -> sign
 ///    and return the Signed7702Tx tuple.
-Signed7702Tx signTransaction(Signer signer, Unsigned7702Tx tx, {int? chainId}) {
+Future<Signed7702Tx> signTransaction(
+  Signer signer,
+  Unsigned7702Tx tx, {
+  int? chainId,
+}) async {
   final preImage = createTxPreImage(tx, chainId: chainId);
-  final signature = signer.sign(preImage);
+  final signature = await signer.signAsync(preImage);
   return (signature: signature, tx: tx);
 }
 

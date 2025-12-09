@@ -1,5 +1,8 @@
 part of '../eip7702.dart';
 
+// CREDIT: web3dart
+// These are private functions which requires tweaking and reimplementaion.
+
 List<dynamic> encodeAuthorizationTupleToRlp(AuthorizationTuple auth) {
   final list = [
     auth.auth.chainId,
