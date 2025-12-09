@@ -19,12 +19,15 @@ extension SignerX on Signer {
   EthPrivateKey get ethPrivateKey =>
       when(raw: (value) => EthPrivateKey(value), eth: (value) => value);
 
-  EIP7702MsgSignature sign(Uint8List digest) {
-    final signature = ethPrivateKey.signToEcSignature(digest, isEIP1559: true);
+  EIP7702MsgSignature sign(Uint8List preImage) {
+    final signature = ethPrivateKey.signToEcSignature(
+      preImage,
+      isEIP1559: true,
+    );
     return EIP7702MsgSignature.forge(signature.r, signature.s, signature.v);
   }
 
-  Future<EIP7702MsgSignature> signAsync(Uint8List digest) {
-    return Future.value(sign(digest));
+  Future<EIP7702MsgSignature> signAsync(Uint8List preImage) {
+    return Future.value(sign(preImage));
   }
 }

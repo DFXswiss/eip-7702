@@ -63,11 +63,18 @@ class Eip7702Client {
   static Future<Eip7702Client> create({
     required String rpcUrl,
     required EthereumAddress delegateAddress,
+    Web3Client? customClient,
   }) async {
-    final ctx = await Eip7702Context.forge(
-      rpcUrl: rpcUrl,
-      delegateAddress: delegateAddress,
-    );
+    final ctx =
+        customClient != null
+            ? Eip7702Context(
+              delegateAddress: delegateAddress,
+              web3Client: customClient,
+            )
+            : await Eip7702Context.forge(
+              rpcUrl: rpcUrl,
+              delegateAddress: delegateAddress,
+            );
     final authBuilder = AuthorizationBuilder(ctx);
     final txBuilder = SetCodeTxBuilder(ctx);
     return Eip7702Client._(ctx, authBuilder, txBuilder);

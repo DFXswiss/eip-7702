@@ -69,12 +69,3 @@ extension Signed7702TxExtension on Signed7702Tx {
     return encodedTx.asBytes();
   }
 }
-
-final tx = Unsigned7702Tx(
-  to: EthereumAddress.fromHex(""),
-  gasLimit: BigInt.one,
-  nonce: 1,
-  maxFeePerGas: EtherAmount.zero(),
-  maxPriorityFeePerGas: EtherAmount.zero(),
-  authorizationList: const [],
-);
