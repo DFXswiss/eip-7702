@@ -12,6 +12,7 @@ To Learn more about EIP-7702 visit: <https://eips.ethereum.org/EIPS/eip-7702>
 final client = await Eip7702Client.create(
   rpcUrl: 'https://rpc.mychain.lfg/apikey=secretish...',
   delegateAddress: mySmartAccountImpl,
+  // optional: customWeb3Client will be priotized if present
 );
 
 final signer = Signer.raw(myPrivateKeyBytes);
@@ -81,7 +82,9 @@ final rawHex = parseRawTransaction(signedTx);
 You now have rawHex which you can push to your own RPC flow:
 
 ```dart
-await web3client.sendRawTransaction(rawHex);
+await web3Client.makeRPCCall('eth_sendRawTransaction', [
+      rawHex,
+    ]);
 ```
 
 ## EIP-4337 Integration
