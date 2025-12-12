@@ -56,7 +56,7 @@ void main() {
 
       whenEstimatingGas(sender, to);
 
-      final unsigned = await prepareFn(value, calldata);
+      final unsigned = await prepareFn(value, calldata, 0);
 
       expect(unsigned.nonce, equals(nonceOverride.toInt()));
       expect(unsigned.from, equals(sender));

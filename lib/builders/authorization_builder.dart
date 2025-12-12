@@ -56,10 +56,12 @@ class AuthorizationBuilder extends Eip7702Base with Eip7702Common {
   ///  - [buildUnsigned] – constructs the unsigned authorization fields.
   Future<AuthorizationTuple> buildAndSign({
     required Signer signer,
+    Executor? executor,
     BigInt? nonceOverride,
   }) async {
     final unsigned = await buildUnsigned(
       eoa: signer.ethPrivateKey.address,
+      executor: executor,
       nonceOverride: nonceOverride,
     );
     return signAuthorization(signer, unsigned);
@@ -91,13 +93,14 @@ class AuthorizationBuilder extends Eip7702Base with Eip7702Common {
   ///  - [buildAndSign]
   Future<AuthorizationTuple?> buildAndSignIfNeeded({
     required Signer signer,
+    Executor? executor,
   }) async {
     final alreadyDelegating = await isDelegatedTo(
       signer.ethPrivateKey.address,
       ctx.delegateAddress,
     );
     if (alreadyDelegating) return null;
-    return buildAndSign(signer: signer);
+    return buildAndSign(signer: signer, executor: executor);
   }
 
   /// Constructs an [UnsignedAuthorization] record for the specified EOA,
@@ -135,16 +138,17 @@ class AuthorizationBuilder extends Eip7702Base with Eip7702Common {
   ///  - [buildAndSignIfNeeded]
   Future<UnsignedAuthorization> buildUnsigned({
     required EthereumAddress eoa,
+    Executor? executor,
     EthereumAddress? delegateOverride,
     BigInt? nonceOverride,
   }) async {
     final resolvedChainId = await resolveChainId();
-    final nonce = nonceOverride ?? await getNonce(eoa);
+    final resolvedNonce = await resolveNonce(eoa, executor, nonceOverride);
     final delegateAddress = delegateOverride ?? ctx.delegateAddress;
     return (
       chainId: resolvedChainId,
       delegateAddress: delegateAddress,
-      nonce: nonce,
+      nonce: resolvedNonce,
     );
   }
 }

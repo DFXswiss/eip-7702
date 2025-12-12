@@ -15,7 +15,10 @@ class Eip7702Client implements Eip7702ClientBase {
     EtherAmount? value,
     Signer? txSigner,
   }) async {
-    final auth = await _authBuilder.buildAndSignIfNeeded(signer: signer);
+    final auth = await _authBuilder.buildAndSignIfNeeded(
+      signer: signer,
+      executor: txSigner != null ? Executor.relayer : Executor.self,
+    );
     final raw = await _txBuilder.buildSignAndEncodeRaw(
       signer: txSigner ?? signer,
       to: to,
@@ -44,13 +47,14 @@ class Eip7702Client implements Eip7702ClientBase {
 
     final unsignedAuth = await _authBuilder.buildUnsigned(
       eoa: signer.ethPrivateKey.address,
+      executor: txSigner != null ? Executor.relayer : Executor.self,
       delegateOverride: EthereumAddress(Uint8List(20)),
     );
     final auth = signAuthorization(signer, unsignedAuth);
 
     final raw = await _txBuilder.buildSignAndEncodeRaw(
       signer: txSigner ?? signer,
-      to: ctx.delegateAddress,
+      to: EthereumAddress(Uint8List(20)),
       value: EtherAmount.zero(),
       data: Uint8List(0),
       authorizationList: [auth],
@@ -66,16 +70,19 @@ class Eip7702Client implements Eip7702ClientBase {
     required String rpcUrl,
     required EthereumAddress delegateAddress,
     Web3Client? customClient,
+    GasTransformFn? transformer,
   }) async {
     final ctx =
         customClient != null
             ? Eip7702Context(
               delegateAddress: delegateAddress,
               web3Client: customClient,
+              transformer: transformer,
             )
             : await Eip7702Context.forge(
               rpcUrl: rpcUrl,
               delegateAddress: delegateAddress,
+              transformer: transformer,
             );
     final authBuilder = AuthorizationBuilder(ctx);
     final txBuilder = SetCodeTxBuilder(ctx);

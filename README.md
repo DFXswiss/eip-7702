@@ -131,8 +131,8 @@ dart test tests
 dart test tests/e2e
 
 # simulate a real testnet set_code_tx
-export RPC_URL = "...lfg"
-export PRIVATE_KEY_WITH_FUNDS = "...0x-i-have-some-testnet-eth"
-dart test tests/__simulation__
+export RPC_URL = "...lfg_but_sepolia" # optional
+export PKEY = "...0x-i-have-0.0001-testnet-eth-min" 
+dart --define=PKEY=$PKEY test test/__simulation__/ --chain-stack-traces
 # then follow up on the logs
 ```

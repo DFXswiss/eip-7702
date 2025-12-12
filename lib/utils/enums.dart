@@ -41,3 +41,17 @@ enum TransactionType {
   final int value;
   const TransactionType(this.value);
 }
+
+/// Indicates which party is responsible for executing a delegated transaction.
+/// The authorization must be signed by the account, but the executor can be a relayer.
+///
+/// - [self] – The transaction is executed directly by the account holder.
+/// - [relayer] – A third-party relayer submits the transaction on behalf of the account.
+enum Executor {
+  self(1),
+  relayer(0);
+
+  final int _value;
+  BigInt get value => BigInt.from(_value);
+  const Executor(this._value);
+}

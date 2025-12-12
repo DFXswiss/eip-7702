@@ -1,5 +1,7 @@
 part of '../builder.dart';
 
+final BigInt baseAuthCost = BigInt.from(25000);
+
 /// A builder responsible for constructing type `0x04` EIP-7702
 /// transactions that update an externally owned account’s code to the
 /// designated delegation stub.
@@ -131,7 +133,7 @@ class SetCodeTxBuilder extends Eip7702Base with Eip7702Common {
     BigInt? nonceOverride,
   }) async {
     final prepareTxFn = await prepareUnsigned(sender, to, nonceOverride);
-    final preparedTx = await prepareTxFn(value, data);
+    final preparedTx = await prepareTxFn(value, data, authorizationList.length);
     preparedTx.authorizationList = authorizationList;
     return preparedTx;
   }
@@ -164,20 +166,20 @@ class SetCodeTxBuilder extends Eip7702Base with Eip7702Common {
   /// final prepare = await builder.prepareUnsigned(sender, to);
   /// final unsigned = await prepare(EtherAmount.zero(), callData);
   /// ```
-  Future<Future<Unsigned7702Tx> Function(EtherAmount?, Uint8List?)>
+  Future<Future<Unsigned7702Tx> Function(EtherAmount?, Uint8List?, int)>
   prepareUnsigned(
     EthereumAddress sender,
     EthereumAddress to, [
     BigInt? nonceOverride,
   ]) async {
     final [nonce, fees] = await Future.wait<dynamic>([
-      nonceOverride != null ? Future.value(nonceOverride) : getNonce(sender),
+      resolveNonce(sender, null, nonceOverride),
       getFeeData(),
     ]);
     final maxFeePerGas = EtherAmount.inWei(fees.maxFeePerGas);
     final maxPriorityFeePerGas = EtherAmount.inWei(fees.maxPriorityFeePerGas);
 
-    return (EtherAmount? value, Uint8List? data) async {
+    return (EtherAmount? value, Uint8List? data, int noOfAuths) async {
       final gasLimit = await ctx.web3Client.estimateGas(
         sender: sender,
         to: to,
@@ -187,10 +189,13 @@ class SetCodeTxBuilder extends Eip7702Base with Eip7702Common {
         maxFeePerGas: maxFeePerGas,
       );
 
+      final baseCost = baseAuthCost * BigInt.from(noOfAuths);
+      final totalGas = gasLimit + baseCost;
+
       return Unsigned7702Tx(
         from: sender,
         to: to,
-        gasLimit: gasLimit,
+        gasLimit: ctx.transformer?.call(totalGas) ?? totalGas,
         nonce: nonce.toInt(),
         value: value ?? EtherAmount.zero(),
         data: data ?? Uint8List(0),

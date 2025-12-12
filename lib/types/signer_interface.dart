@@ -22,9 +22,32 @@ class EIP7702MsgSignature extends MsgSignature {
 
   EIP7702MsgSignature(super.r, super.s, super.v, this.yParity);
 
+  static final BigInt _secp256k1n = BigInt.parse(
+    'FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141',
+    radix: 16,
+  );
+
+  static final BigInt _halfSecp256k1n = _secp256k1n >> 1;
+
+  static void _normalize(BigInt s, int yParity, int vNorm) {
+    if (s > _halfSecp256k1n) {
+      s = _secp256k1n - s;
+      yParity ^= 1;
+      vNorm = 27 + yParity;
+    }
+  }
+
   factory EIP7702MsgSignature.forge(BigInt r, BigInt s, int v) {
-    v = v > 1 ? v : v + 27;
-    return EIP7702MsgSignature(r, s, v, v - 27);
+    int yParity = (v == 0 || v == 1) ? v : (v - 27);
+
+    if (yParity != 0 && yParity != 1) {
+      throw ArgumentError.value(v, 'v', 'Must be 0/1 or 27/28');
+    }
+
+    int vNorm = 27 + yParity;
+    _normalize(s, yParity, vNorm);
+
+    return EIP7702MsgSignature(r, s, vNorm, yParity);
   }
 
   factory EIP7702MsgSignature.fromUint8List(Uint8List data) {
@@ -65,10 +88,21 @@ class Signer with _$Signer {
   const factory Signer.raw(Uint8List rawPrivateKey) = RawSigner;
 }
 
+abstract class CustomSigner implements Signer {
+  EthPrivateKey get ethPrivateKey;
+
+  /// {@macro sign}
+  EIP7702MsgSignature sign(Uint8List preImage);
+
+  /// {@macro signAsync}
+  Future<EIP7702MsgSignature> signAsync(Uint8List preImage);
+}
+
 extension SignerX on Signer {
   EthPrivateKey get ethPrivateKey =>
       when(raw: (value) => EthPrivateKey(value), eth: (value) => value);
 
+  /// {@template sign}
   /// Signs the given preimage using this signer’s underlying private key
   /// and returns an [EIP7702MsgSignature].
   ///
@@ -78,6 +112,7 @@ extension SignerX on Signer {
   ///
   /// This is a synchronous operation and should be used when blocking
   /// execution is acceptable.
+  /// {@endtemplate}
   EIP7702MsgSignature sign(Uint8List preImage) {
     final signature = ethPrivateKey.signToEcSignature(
       preImage,
@@ -86,7 +121,8 @@ extension SignerX on Signer {
     return EIP7702MsgSignature.forge(signature.r, signature.s, signature.v);
   }
 
-  // Asynchronously signs the given preimage using this signer’s underlying
+  /// {@template signAsync}
+  /// Asynchronously signs the given preimage using this signer’s underlying
   /// private key.
   ///
   /// This method simply wraps [sign] in a `Future`, allowing use in async
@@ -97,6 +133,7 @@ extension SignerX on Signer {
   /// ```dart
   /// final sig = await signer.signAsync(preImage);
   /// ```
+  /// {@endtemplate}
   Future<EIP7702MsgSignature> signAsync(Uint8List preImage) {
     return Future.value(sign(preImage));
   }

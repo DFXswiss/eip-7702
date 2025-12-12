@@ -180,4 +180,35 @@ mixin Eip7702Common on Eip7702Base {
     ctx.chainId ??= await ctx.web3Client.getChainId();
     return ctx.chainId!;
   }
+
+  /// Resolves the next transaction nonce for the given externally owned account (EOA).
+  ///
+  /// The returned nonce is computed as the current on-chain nonce (retrieved via
+  /// [getNonce]) plus an optional offset supplied by the [executor] parameter.
+  /// If [nonceOverride] is provided, it is returned immediately without
+  /// querying the network.
+  ///
+  /// The [executor] parameter defaults to [Executor.self], which automatically increments the nonce by 1.
+  /// Other [Executor] values may be used to reserve sequential nonces.
+  ///
+  /// Example:
+  /// ```dart
+  /// final nonce = await resolveNonce(myEoa, executor: Executor.relayer);
+  /// print('Next usable nonce: $nonce');
+  /// ```
+  ///
+  /// See also:
+  ///  - [getNonce] – fetches the current on-chain nonce.
+  ///  - [Executor] – enum defining nonce offset strategies.
+  Future<BigInt> resolveNonce(
+    EthereumAddress eoa, [
+    Executor? executor,
+    BigInt? nonceOverride,
+  ]) async {
+    if (nonceOverride != null) {
+      return nonceOverride;
+    }
+    final nonce = await getNonce(eoa);
+    return nonce + (executor?.value ?? BigInt.zero);
+  }
 }
