@@ -1,4 +1,4 @@
-## 0.1.0
+## 1.0.0
 
 * ✨ EIP-7702 Core Implementation
   * Full Dart implementation of EIP-7702 typed transactions (type 0x04).
