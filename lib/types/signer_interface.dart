@@ -90,10 +90,9 @@ class Signer with _$Signer {
 ///
 /// This abstract class allows external implementations to plug in their own
 /// signing logic while still exposing the required [EthPrivateKey] getter.
+///
+/// Implementations must create a getter override: `ethPrivateKey`
 abstract class CustomSigner implements Signer {
-  /// The underlying [EthPrivateKey] used for signing operations.
-  EthPrivateKey get ethPrivateKey;
-
   /// {@macro sign}
   EIP7702MsgSignature sign(Uint8List preImage);
 
