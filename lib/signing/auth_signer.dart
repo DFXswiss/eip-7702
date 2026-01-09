@@ -21,7 +21,7 @@ Uint8List createAuthPreImage(UnsignedAuthorization auth) {
   encodedAuth.add(
     rlp.encode([
       auth.chainId,
-      auth.delegateAddress.ethAddress.value,
+      auth.delegateAddress.ethAddress.addressBytes, 
       auth.nonce,
     ]),
   );

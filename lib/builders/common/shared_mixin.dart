@@ -158,7 +158,7 @@ mixin Eip7702Common on Eip7702Base {
   Future<bool> isDelegatedTo(EthereumAddress eoa, EthereumAddress impl) async {
     final currentImpl = await getDelegatedImpl(eoa);
     if (currentImpl == null) return false;
-    return bytesToHex(currentImpl) == impl.without0x;
+    return bytesToHex(currentImpl) == impl.hexNo0x;
   }
 
   /// Resolves and returns the active chain ID for the current context.

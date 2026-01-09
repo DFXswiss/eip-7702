@@ -26,7 +26,7 @@ part of '../eip7702.dart';
 List<dynamic> encodeAuthorizationTupleToRlp(AuthorizationTuple auth) {
   final list = [
     auth.auth.chainId,
-    auth.auth.delegateAddress.ethAddress.value,
+    auth.auth.delegateAddress.ethAddress.hex,
     auth.auth.nonce,
     auth.signature.yParity,
     auth.signature.r,
@@ -115,7 +115,7 @@ List<dynamic> encodeEIP1559ToRlp(
   ];
 
   if (transaction.to != null) {
-    list.add(transaction.to!.value);
+    list.add(transaction.to!.hex);
   } else {
     list.add('');
   }

@@ -83,7 +83,7 @@ class SetCodeTxBuilder extends Eip7702Base with Eip7702Common {
     List<AuthorizationTuple> authorizationList = const [],
   }) async {
     final unsignedTx = await buildUnsigned(
-      sender: signer.ethPrivateKey.address.eip55With0x,
+      sender: signer.ethPrivateKey.address.hexEip55,
       to: to,
       value: value,
       data: data,

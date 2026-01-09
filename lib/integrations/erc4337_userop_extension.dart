@@ -107,7 +107,7 @@ void validateUserOp(AuthorizationTuple auth, Map<String, dynamic> op) {
   final recoveredAddress = EthereumAddress(
     publicKeyToAddress(recoveredPublicKey),
   );
-  final recoveredHex = recoveredAddress.eip55With0x;
+  final recoveredHex = recoveredAddress.hexEip55;
 
   if (op["sender"] == null) {
     op["sender"] = recoveredHex;

@@ -144,7 +144,7 @@ class AuthorizationBuilder extends Eip7702Base with Eip7702Common {
   }) async {
     final resolvedChainId = await resolveChainId();
     final resolvedNonce = await resolveNonce(eoa, executor, nonceOverride);
-    final delegateAddress = delegateOverride ?? ctx.delegateAddress.with0x;
+    final delegateAddress = delegateOverride ?? ctx.delegateAddress.hex;
     return (
       chainId: resolvedChainId,
       delegateAddress: delegateAddress,
